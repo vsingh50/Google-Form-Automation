@@ -117,9 +117,6 @@ public class TestCases {
         options.setCapability("goog:loggingPrefs", logs);
         options.addArguments("--remote-allow-origins=*");
 
-        // Connect to the chrome-window running on debugging port
-        options.setExperimentalOption("debuggerAddress", "127.0.0.1:9222");
-
 
         System.setProperty(ChromeDriverService.CHROME_DRIVER_LOG_PROPERTY, "build/chromedriver.log"); 
 
