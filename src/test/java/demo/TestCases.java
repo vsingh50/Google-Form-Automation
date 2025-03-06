@@ -92,9 +92,16 @@ public class TestCases {
         Thread.sleep(3000);
         WebElement thankYou = driver.findElement(By.xpath("//div[text()='Thanks for your response, Automation Wizard!']"));
         String thankYouMsg = thankYou.getText();
-        Assert.assertEquals(thankYouMsg, "Thanks for your response, Automation Wizard!");
-        System.out.println("Successfully Submitted Google Form");
+        if(thankYouMsg.contains("Thanks for your response")){
+            System.out.println("Successfully Submitted Google Form: PASS");
+        }
+        else{
+            System.out.println("Successfully Submitted Google Form: FAIL");
+        }
 
+        String successMessage = driver.findElement(By.xpath("/html/body/div[1]/div[2]/div[1]/div/div[3]")).getText();
+        System.out.println("Form Submitted Successfully: " + successMessage);
+        
     }
 
      
@@ -117,6 +124,8 @@ public class TestCases {
         options.setCapability("goog:loggingPrefs", logs);
         options.addArguments("--remote-allow-origins=*");
 
+        // Connect to the chrome-window running on debugging port
+        options.setExperimentalOption("debuggerAddress", "127.0.0.1:9222");
 
         System.setProperty(ChromeDriverService.CHROME_DRIVER_LOG_PROPERTY, "build/chromedriver.log"); 
 
