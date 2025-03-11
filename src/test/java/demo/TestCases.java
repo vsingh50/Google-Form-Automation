@@ -1,5 +1,7 @@
 package demo;
 
+import demo.wrappers.*;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
@@ -10,87 +12,78 @@ import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.logging.Level;
 
 public class TestCases {
     ChromeDriver driver;
 
-    /*
-     * TODO: Write your tests here with testng @Test annotation. 
-     * Follow `testCase01` `testCase02`... format or what is provided in instructions
-     */
     @Test
     public void testCase01() throws InterruptedException{
         System.out.println("Start Google Form Automation");
-        driver.get("https://docs.google.com/forms/d/e/1FAIpQLSep9LTMntH5YqIXa5nkiPKSs283kdwitBBhXWyZdAS-e4CxBQ/viewform");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("(//input[@type='text'])[1]")));
-        WebElement nameInput = driver.findElement(By.xpath("(//input[@type='text'])[1]"));
-        nameInput.sendKeys("Crio Learner");
+        
+        //Loading Google Form URL
+        Wrappers.navigate(driver, "https://docs.google.com/forms/d/e/1FAIpQLSep9LTMntH5YqIXa5nkiPKSs283kdwitBBhXWyZdAS-e4CxBQ/viewform");
+        
+        //Input Name 
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@type='text']")));
+        WebElement nameInput = driver.findElement(By.xpath("//input[@type='text']"));
+        Wrappers.sendKeys(driver, nameInput, "Crio Learner");  
         System.out.println("Successfully Added Name in the form");
-        long epoch = System.currentTimeMillis()/1000;
-        JavascriptExecutor js = (JavascriptExecutor) driver;
+        
+        //Input into TextArea
         Thread.sleep(2000);
         WebElement practicingInput = driver.findElement(By.tagName("textarea"));
-        js.executeScript("arguments[0].scrollIntoView();", practicingInput);
-        practicingInput.sendKeys("I want to be the best QA Engineer! "+ String.valueOf(epoch));
+        String textToInput = Wrappers.getPracticeString("I want to be the best QA Engineer! ");
+        Wrappers.sendKeys(driver, practicingInput, textToInput);
         System.out.println("Successfully Added Participating answer");
-        WebElement experience = driver.findElement(By.xpath("//div[@class='SG0AAe']/div[2]/label/div/div[1]"));
-        js.executeScript("arguments[0].scrollIntoView();", experience);
-        experience.click();
-        List<WebElement> checkBox = driver.findElements(By.xpath("(//div[@role='list'])[2]/div/label/div/div[1]"));
-        List<WebElement> checkBoxText = driver.findElements(By.xpath("(//div[@role='list'])[2]/div/label/div/div[2]"));
-        // js.executeScript("arguments[0].scrollIntoView();", checkBox);
-        // js.executeScript("arguments[0].scrollIntoView();", checkBoxText);
-        for(int i = 0 ; i < checkBox.size() ; i++){
-            js.executeScript("arguments[0].scrollIntoView();", checkBox.get(i));
-            js.executeScript("arguments[0].scrollIntoView();", checkBoxText.get(i));
-            if(checkBoxText.get(i).getText().equals("Java") || 
-                checkBoxText.get(i).getText().equals("Selenium") ||
-                checkBoxText.get(i).getText().equals("TestNG")){
-                checkBox.get(i).click();
-            }
-        }
+
+        //Selecting Experience using Radio Buttons
+        List<WebElement> experience = driver.findElements(By.xpath("//span[contains(@class,'OvPDhc ')]"));
+        Wrappers.selectExperience(driver, experience, "3 - 5");
+       
+        //Selecting skills using checkBoxes
+        List<WebElement> checkBoxText = driver.findElements(By.xpath("//span[contains(@class,'n5vBHf ')]"));
+        Wrappers.selectSkills(driver, checkBoxText, "Java");
+        Wrappers.selectSkills(driver, checkBoxText, "TestNG");
+        Wrappers.selectSkills(driver, checkBoxText, "Selenium");
         System.out.println("Successfully Selected Checkboxes");
-        WebElement addressList = driver.findElement(By.xpath("(//div[@role='listbox'])[1]/div[1]"));
-        js.executeScript("arguments[0].scrollIntoView();", addressList);
-        addressList.click();
-        //WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@role='option']/span[text()='Mr']")));
-        WebElement mr = driver.findElement(By.xpath("//div[@role='option']/span[text()='Mr']"));
-        js.executeScript("arguments[0].scrollIntoView();", mr);
-        mr.click();
-        System.out.println("Successfully selected Mr");
-        LocalDate todaysDate = LocalDate.now();
-        LocalDate sevenDaysAgo = todaysDate.minusDays(7);
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        String dateInFormat = sevenDaysAgo.format(dateFormatter);
-        WebElement datePicker = driver.findElement(By.xpath("//input[@type='date']"));
-        js.executeScript("arguments[0].scrollIntoView();", datePicker);
-        datePicker.sendKeys(dateInFormat);
-        System.out.println("Successfully Selected Date");
-        WebElement hour = driver.findElement(By.xpath("(//input[@type='text'])[2]"));
-        //js.executeScript("arguments[0].scrollIntoView();", hour);
-        hour.sendKeys("7");
-        WebElement minutes = driver.findElement(By.xpath("(//input[@type='text'])[3]"));
-        js.executeScript("arguments[0].scrollIntoView();", minutes);
-        minutes.sendKeys("30");
-        System.out.println("Successfully Added Time");
-        WebElement submitButton = driver.findElement(By.xpath("(//div[@role='button'])[1]"));
-        js.executeScript("arguments[0].scrollIntoView();", submitButton);
-        submitButton.click();
-        System.out.println("Successfully Clicked on Submit Button");
+
+        //Selecting honorific word
+        WebElement addressList = driver.findElement(By.xpath("//div[@role='listbox']//div[contains(@class,'KKjvXb ')]"));
+        Wrappers.click(addressList, driver);
         Thread.sleep(3000);
-        WebElement thankYou = driver.findElement(By.xpath("//div[text()='Thanks for your response, Automation Wizard!']"));
+        List<WebElement> personToBeAddressed = driver.findElements(By.xpath("//div[@jsname='V68bde']//div[contains(@class,'OIC90c ')]/span"));
+        Wrappers.selectAddresse(driver, personToBeAddressed, "Mr");
+
+       
+        //Selecting date
+        WebElement datePicker = driver.findElement(By.xpath("//input[@type='date']"));
+        String dateToSend = Wrappers.getDaysAgo(7);
+        Wrappers.sendKeys(driver, datePicker, dateToSend);
+        System.out.println("Successfully Selected Date");
+
+        //Providing Time
+        WebElement hour = driver.findElement(By.xpath("//input[@aria-label='Hour']"));
+        Wrappers.sendKeys(driver, hour, "7");
+        WebElement minutes = driver.findElement(By.xpath("//input[@aria-label='Minute']"));
+        Wrappers.sendKeys(driver, minutes, "30"); 
+        System.out.println("Successfully Added Time");
+
+        //Submit Form
+        WebElement submitButton = driver.findElement(By.xpath("//div[@role='button']//span[text()='Submit']"));
+        Wrappers.click(submitButton, driver);
+        System.out.println("Successfully Clicked on Submit Button");
+        
+        //Validating Thank You message
+        Thread.sleep(3000);
+        WebElement thankYou = driver.findElement(By.className("vHW8K"));
         String thankYouMsg = thankYou.getText();
         if(thankYouMsg.contains("Thanks for your response")){
             System.out.println("Successfully Submitted Google Form: PASS");
@@ -98,16 +91,11 @@ public class TestCases {
         else{
             System.out.println("Successfully Submitted Google Form: FAIL");
         }
-
-        String successMessage = driver.findElement(By.xpath("/html/body/div[1]/div[2]/div[1]/div/div[3]")).getText();
-        System.out.println("Form Submitted Successfully: " + successMessage);
         
     }
 
      
-    /*
-     * Do not change the provided methods unless necessary, they will help in automation and assessment
-     */
+    
     @BeforeTest
     public void startBrowser()
     {
@@ -125,7 +113,7 @@ public class TestCases {
         options.addArguments("--remote-allow-origins=*");
 
         // Connect to the chrome-window running on debugging port
-        options.setExperimentalOption("debuggerAddress", "127.0.0.1:9222");
+        //options.setExperimentalOption("debuggerAddress", "127.0.0.1:9222");
 
         System.setProperty(ChromeDriverService.CHROME_DRIVER_LOG_PROPERTY, "build/chromedriver.log"); 
 
@@ -137,8 +125,7 @@ public class TestCases {
     @AfterTest
     public void endTest()
     {
-        // driver.close();
-        // driver.quit();
-
+        driver.close();
+        driver.quit();
     }
 }
